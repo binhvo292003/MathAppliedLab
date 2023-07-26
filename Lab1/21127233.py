@@ -12,10 +12,6 @@ def is_valid_file(file_path):
     # Check if the path is a regular file
     if not os.path.isfile(file_path):
         return False
-
-    # Add additional checks if needed
-    # For example, check for file extension, file size, etc.
-
     # If all checks pass, the file is considered valid
     return True
 
@@ -39,11 +35,11 @@ def input_data():
                 and (k_clusters > 0 and k_clusters <= 1000)):
             break
 
-    # Choose type of centroids
-    type_centroids = input(
-        'Enter the type of centroid (random or in_pixels): ')
-    if (type_centroids != 'random'):
-        type_centroids = 'in_pixels'
+        # Choose type of centroids
+        type_centroids = input(
+            'Enter the type of centroid (random or in_pixels): ')
+        if (type_centroids != 'random'):
+            type_centroids = 'in_pixels'
 
     return filename, k_clusters, iteration, type_centroids
 
@@ -61,6 +57,22 @@ def output_data(filename, k_clusters, outputImg):
     outputImgName = filename[:len(filename)-4]+"_" + type_centroids+'_k' + \
         str(k_clusters) + '.' + outputType
     Image.fromarray(outputImg.astype(np.uint8)).save(outputImgName)
+
+
+def change_2d_to_1d(filename):
+    # Open image
+    image = Image.open(filename)
+    # Convert to numpy array (3D matrix)
+    image = np.array(image)
+    # Preprocessing - Flatten image to a 1D array
+    rows, cols, channels = image.shape
+    flatImage = image.reshape(rows * cols, channels)
+    return flatImage, image
+
+
+def change_1d_to_2d(centroids, labels, image):
+    result = centroids[labels].astype(np.uint8)
+    return result.reshape(image.shape)
 
 
 def init_centroid(flat_img, k_cluster, type_centroid):
@@ -127,22 +139,6 @@ def kmeans(flat_img, k_clusters, max_iteration, type_centroids):
         if np.allclose(old_centroids, centroids, rtol=10e-5, equal_nan=False):
             break
     return centroids, labels
-
-
-def change_2d_to_1d(filename):
-    # Open image
-    image = Image.open(filename)
-    # Convert to numpy array (3D matrix)
-    image = np.array(image)
-    # Preprocessing - Flatten image to a 1D array
-    rows, cols, channels = image.shape
-    flatImage = image.reshape(rows * cols, channels)
-    return flatImage, image
-
-
-def change_1d_to_2d(centroids, labels, image):
-    result = centroids[labels].astype(np.uint8)
-    return result.reshape(image.shape)
 
 
 if __name__ == '__main__':
